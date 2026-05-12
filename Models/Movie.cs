@@ -1,0 +1,22 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Smart_Utube.Models
+{
+    public class Movie
+    {
+        public int Id { get; set; }
+        public string? Title { get; set; }
+        public required string YouTubeUrl { get; set; }
+        public string? Description { get; set; }
+        public int Duration { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
+        public ICollection<MovieCategory> MovieCategories { get; set; } = new List<MovieCategory>();
+        public ICollection<PlaylistMovie> PlaylistMovies { get; set; } = new List<PlaylistMovie>();
+        public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
+        public ICollection<WatchHistory> WatchHistories { get; set; } = new List<WatchHistory>();
+        public ICollection<ExternalDescription> ExternalDescriptions { get; set; } = new List<ExternalDescription>();
+    }
+}
