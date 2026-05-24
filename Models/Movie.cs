@@ -9,7 +9,8 @@ namespace Smart_Utube.Models
         public required string YouTubeUrl { get; set; }
         public string? Description { get; set; }
         public int Duration { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
+        public DateTime CreatedAt { get; set; } = DateTime.Today;
 
         public ICollection<Comment> Comments { get; set; } = new List<Comment>();
         public ICollection<Rating> Ratings { get; set; } = new List<Rating>();

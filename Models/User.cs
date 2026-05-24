@@ -11,7 +11,7 @@ namespace Smart_Utube.Models
         public required string Email { get; set; }
         public required string PasswordHash { get; set; }
 
-        public Profile Profile { get; set; } = null!;
+        public Profile? Profile { get; set; }
 
         public UserRole Role { get; set; } = UserRole.User;
 
