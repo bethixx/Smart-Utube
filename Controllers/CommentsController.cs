@@ -49,8 +49,8 @@ namespace Smart_Utube.Controllers
         // GET: Comments/Create
         public IActionResult Create()
         {
-            ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Id");
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
+            ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Title");
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Username");
             return View();
         }
 
@@ -67,8 +67,8 @@ namespace Smart_Utube.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Id", comment.MovieId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", comment.UserId);
+            ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Title", comment.MovieId);
+            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Username", comment.UserId);
             return View(comment);
         }
 

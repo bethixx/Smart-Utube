@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Smart_Utube.Models.Movie>
+﻿@model IEnumerable<Smart_Utube.DTOs.Movie.MovieReadDto>
 
 @{
     ViewData["Title"] = "Index";
@@ -16,7 +16,7 @@
                 @Html.DisplayNameFor(model => model.Title)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.YouTubeUrl)
+                Watch on YouTube
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Description)
@@ -36,9 +36,13 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.YouTubeUrl)
-            </td>
+                <td>
+                    <a href="@item.YouTubeUrl"
+                       target="_blank"
+                       class="btn btn-primary">
+                        ▶ Play
+                    </a>
+                </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
