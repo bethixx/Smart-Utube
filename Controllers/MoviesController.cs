@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Smart_Utube.Data;
 using Smart_Utube.DTOs.Movie;
 using Smart_Utube.Models;
 using Smart_Utube.Services;
+using Smart_Utube.Data;
 
 namespace Smart_Utube.Controllers
 {
     public class MoviesController : Controller
     {
         private readonly IMovieService _movieService;
+        private readonly AppDbContext _context;
 
-        public MoviesController(IMovieService movieService)
+        public MoviesController(IMovieService movieService, AppDbContext context)
         {
             _movieService = movieService;
+            _context = context;
         }
 
         // GET: Movies
@@ -62,13 +59,24 @@ namespace Smart_Utube.Controllers
         // GET: Movies/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null) return NotFound();
+            if (id == null)
+                return NotFound();
 
             var movie = await _movieService.GetByIdAsync(id.Value);
 
-            if (movie is null) return NotFound();
+            if (movie is null)
+                return NotFound();
 
-            return View(movie);
+            var dto = new MovieUpdateDto
+            {
+                Id = movie.Id,
+                Title = movie.Title,
+                YouTubeUrl = movie.YouTubeUrl,
+                Description = movie.Description,
+                Duration = movie.Duration
+            };
+
+            return View(dto);
         }
 
         // POST: Movies/Edit/5
@@ -104,6 +112,27 @@ namespace Smart_Utube.Controllers
             await _movieService.DeleteAsync(id);
 
             return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Watch(int id)
+        {
+            int userId = 1;
+
+            var watch = new WatchHistory
+            {
+                MovieId = id,
+                UserId = userId,
+                WatchedAt = DateTime.UtcNow
+            };
+
+            _context.WatchHistories.Add(watch);
+            await _context.SaveChangesAsync();
+
+            var movie = await _movieService.GetByIdAsync(id);
+
+            if (movie == null) return NotFound();
+
+            return Redirect(movie.YouTubeUrl);
         }
     }
 }

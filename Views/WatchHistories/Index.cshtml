@@ -1,0 +1,41 @@
+﻿@model IEnumerable<Smart_Utube.Models.WatchHistory>
+
+@{
+    ViewData["Title"] = "Watch History";
+}
+
+<h1>Watch History</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Movie</th>
+            <th>Watched At</th>
+            <th>Watch</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @item.Movie.Title
+                </td>
+
+                <td>
+                    @item.WatchedAt.ToString("dd/MM/yyyy HH:mm")
+                </td>
+
+                <td>
+                    <a asp-controller="Movies"
+                       asp-action="Watch"
+                       asp-route-id="@item.MovieId"
+                       class="btn btn-primary">
+                        ▶ Watch again
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

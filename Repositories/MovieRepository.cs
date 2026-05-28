@@ -15,12 +15,16 @@ namespace Smart_Utube.Repositories
 
         public async Task<List<Movie>> GetAllAsync()
         {
-            return await _context.Movies.ToListAsync();
+            return await _context.Movies
+                .Include(m => m.Ratings)
+                .ToListAsync();
         }
 
         public async Task<Movie?> GetByIdAsync(int id)
         {
-            return await _context.Movies.FindAsync(id);
+            return await _context.Movies
+                .Include(m => m.Ratings)
+                .FirstOrDefaultAsync(m => m.Id == id);
         }
 
         public async Task AddAsync(Movie movie)

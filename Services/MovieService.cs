@@ -24,7 +24,10 @@ namespace Smart_Utube.Services
                 YouTubeUrl = m.YouTubeUrl,
                 Description = m.Description,
                 Duration = m.Duration,
-                CreatedAt = m.CreatedAt
+                CreatedAt = m.CreatedAt,
+                AverageRating = m.Ratings.Any()
+                ? m.Ratings.Average(r => r.Value)
+                : 0
             }).ToList();
         }
 
@@ -41,7 +44,10 @@ namespace Smart_Utube.Services
                 YouTubeUrl = m.YouTubeUrl,
                 Description = m.Description,
                 Duration = m.Duration,
-                CreatedAt = m.CreatedAt
+                CreatedAt = m.CreatedAt,
+                AverageRating = m.Ratings.Any()
+                ? m.Ratings.Average(r => r.Value)
+                : 0
             };
         }
         public async Task CreateAsync(MovieCreateDto dto)
