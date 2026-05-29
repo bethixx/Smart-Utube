@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<Smart_Utube.DTOs.Movie.MovieReadDto>
+@using Smart_Utube.Models
 
 @{
     ViewData["Title"] = "Index";
@@ -60,20 +61,39 @@
 
             <br />
 
-                <a asp-controller="PlaylistMovies"
-                    asp-action="AddToPlaylist"
-                    asp-route-movieId="@item.Id"
-                    asp-route-playlistId="1"
-                    class="btn btn-success btn-sm">
-                    + Playlist
-                </a>
+                    @if (ViewBag.Playlists != null)
+                    {
+                        <form asp-controller="PlaylistMovies"
+                              asp-action="AddToPlaylist"
+                              method="post">
+
+                            <input type="hidden"
+                                   name="movieId"
+                                   value="@item.Id" />
+
+                            <select name="playlistId"
+                                    class="form-control form-control-sm">
+
+                                @foreach (var playlist in ViewBag.Playlists)
+                                {
+                                    <option value="@playlist.Id">
+                                        @playlist.Name
+                                    </option>
+                                }
+                            </select>
+
+                            <button type="submit"
+                                    class="btn btn-success btn-sm mt-1">
+                                + Playlist
+                            </button>
+                        </form>
+                    }
 
             <br />
 
                 <a asp-controller="Favorites"
                     asp-action="Add"
                     asp-route-movieId="@item.Id"
-                    asp-route-userId="1"
                     class="btn btn-warning btn-sm mt-1">
                     ❤ Favorite
                 </a>

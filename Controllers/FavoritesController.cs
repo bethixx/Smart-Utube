@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Smart_Utube.Models;
 using Smart_Utube.Data;
+using System.Security.Claims;
 
 namespace Smart_Utube.Controllers
 {
@@ -19,8 +20,10 @@ namespace Smart_Utube.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Add(int movieId, int userId)
+        public async Task<IActionResult> Add(int movieId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var favorite = new Favorite
             {
                 MovieId = movieId,
@@ -33,8 +36,10 @@ namespace Smart_Utube.Controllers
             return RedirectToAction("Index", "Movies");
         }
 
-        public async Task<IActionResult> Remove(int movieId, int userId)
+        public async Task<IActionResult> Remove(int movieId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var favorite = await _context.Favorites
                 .FindAsync(userId, movieId);
 

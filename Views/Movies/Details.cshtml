@@ -64,10 +64,6 @@
                name="movieId"
                value="@Model!.Id" />
 
-        <input type="hidden"
-               name="userId"
-               value="1" />
-
         <select name="value" class="form-control">
             <option value="1">1</option>
             <option value="2">2</option>
@@ -86,8 +82,16 @@
     <a asp-controller="Ratings"
        asp-action="Delete"
        asp-route-movieId="@Model.Id"
-       asp-route-userId="1"
        class="btn btn-danger mt-2">
         Remove Rating
+    </a>
+
+    <br />
+
+    <a asp-controller="Comments"
+       asp-action="Create"
+       asp-route-movieId="@Model.Id"
+       class="btn btn-primary">
+        Add comment
     </a>
 </div>

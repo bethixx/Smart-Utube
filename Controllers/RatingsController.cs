@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smart_Utube.Data;
 using Smart_Utube.Models;
+using System.Security.Claims;
 
 namespace Smart_Utube.Controllers
 {
@@ -14,10 +16,13 @@ namespace Smart_Utube.Controllers
             _context = context;
         }
 
+        [Authorize]
         // ADD OR UPDATE RATING
         [HttpPost]
-        public async Task<IActionResult> Rate(int movieId, int userId, int value)
+        public async Task<IActionResult> Rate(int movieId, int value)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var existingRating = await _context.Ratings
                 .FirstOrDefaultAsync(r =>
                     r.MovieId == movieId &&
@@ -47,8 +52,11 @@ namespace Smart_Utube.Controllers
         }
 
         // DELETE RATING
-        public async Task<IActionResult> Delete(int movieId, int userId)
+        [Authorize]
+        public async Task<IActionResult> Delete(int movieId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var rating = await _context.Ratings
                 .FirstOrDefaultAsync(r =>
                     r.MovieId == movieId &&

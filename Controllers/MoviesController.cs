@@ -4,6 +4,8 @@ using Smart_Utube.DTOs.Movie;
 using Smart_Utube.Models;
 using Smart_Utube.Services;
 using Smart_Utube.Data;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Smart_Utube.Controllers
 {
@@ -22,6 +24,16 @@ namespace Smart_Utube.Controllers
         public async Task<IActionResult> Index()
         {
             var movies = await _movieService.GetAllAsync();
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId != null)
+            {
+                ViewBag.Playlists = await _context.Playlists
+                    .Where(p => p.UserId == userId)
+                    .ToListAsync();
+            }
+
             return View(movies);
         }
 
@@ -116,7 +128,7 @@ namespace Smart_Utube.Controllers
 
         public async Task<IActionResult> Watch(int id)
         {
-            int userId = 1;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var watch = new WatchHistory
             {

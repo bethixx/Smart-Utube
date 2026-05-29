@@ -1,16 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.General;
 using Smart_Utube.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 
 namespace Smart_Utube.Data
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<AppUser>
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options)
-        {
-        }
+            public AppDbContext(DbContextOptions<AppDbContext> options)
+                : base(options)
+            {
+            }
+
         public DbSet<Movie> Movies { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Playlist> Playlists { get; set; }
@@ -20,17 +23,11 @@ namespace Smart_Utube.Data
         public DbSet<MovieCategory> MovieCategories { get; set; }
         public DbSet<WatchHistory> WatchHistories { get; set; }
         public DbSet<ExternalDescription> ExternalDescriptions { get; set; }
-        public DbSet<Profile> Profiles { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
-            // User enum
-            modelBuilder.Entity<User>()
-                .Property(u => u.Role)
-                .HasConversion<string>();
 
             // Playlist movie
 
@@ -69,7 +66,7 @@ namespace Smart_Utube.Data
 
             modelBuilder.Entity<Favorite>()
                 .HasOne(f => f.User)
-                .WithMany(u => u.Favorites)
+                .WithMany()
                 .HasForeignKey(f => f.UserId);
 
             modelBuilder.Entity<Favorite>()
@@ -80,7 +77,7 @@ namespace Smart_Utube.Data
             // Comment one-to-many
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.User)
-                .WithMany(u => u.Comments)
+                .WithMany()
                 .HasForeignKey(c => c.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -93,7 +90,7 @@ namespace Smart_Utube.Data
             // Rating
             modelBuilder.Entity<Rating>()
                 .HasOne(r => r.User)
-                .WithMany(u => u.Ratings)
+                .WithMany()
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -110,7 +107,7 @@ namespace Smart_Utube.Data
             // Watch history
             modelBuilder.Entity<WatchHistory>()
                 .HasOne(w => w.User)
-                .WithMany(u => u.WatchHistories)
+                .WithMany()
                 .HasForeignKey(w => w.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -118,13 +115,6 @@ namespace Smart_Utube.Data
                 .HasOne(w => w.Movie)
                 .WithMany(m => m.WatchHistories)
                 .HasForeignKey(w => w.MovieId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Profile
-            modelBuilder.Entity<Profile>()
-                .HasOne(p => p.User)
-                .WithOne(u => u.Profile)
-                .HasForeignKey<Profile>(p => p.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // AI description

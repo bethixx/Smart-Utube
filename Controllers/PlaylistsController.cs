@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smart_Utube.Data;
 using Smart_Utube.Models;
+using System.Security.Claims;
 
 namespace Smart_Utube.Controllers
 {
@@ -54,16 +55,15 @@ namespace Smart_Utube.Controllers
         // POST: Playlists/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,Name")] Playlist playlist)
+        public async Task<IActionResult> Create(Playlist playlist)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(playlist);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", playlist.UserId);
-            return View(playlist);
+            playlist.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            _context.Add(playlist);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Playlists/Edit/5

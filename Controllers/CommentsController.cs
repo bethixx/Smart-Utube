@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Smart_Utube.Data;
 using Smart_Utube.Models;
+using System.Security.Claims;
+using Smart_Utube.DTOs.Comment;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Smart_Utube.Controllers
 {
@@ -43,29 +46,31 @@ namespace Smart_Utube.Controllers
         }
 
         // GET: Comments/Create
-        public IActionResult Create()
+        public IActionResult Create(int movieId)
         {
-            ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Title");
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Username");
-            return View();
+            return View(new CommentCreateDto
+            {
+                MovieId = movieId
+            });
         }
 
         // POST: Comments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserId,MovieId,Content,CreatedAt")] Comment comment)
+        public async Task<IActionResult> Create(CommentCreateDto dto)
         {
-            if (ModelState.IsValid)
+            var comment = new Comment
             {
-                _context.Add(comment);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["MovieId"] = new SelectList(_context.Movies, "Id", "Title", comment.MovieId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Username", comment.UserId);
-            return View(comment);
+                MovieId = dto.MovieId,
+                Content = dto.Content,
+                UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!
+            };
+
+            _context.Comments.Add(comment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Movies", new { id = dto.MovieId });
         }
 
         // GET: Comments/Edit/5
@@ -86,9 +91,7 @@ namespace Smart_Utube.Controllers
             return View(comment);
         }
 
-        // POST: Comments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Comments/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,MovieId,Content,CreatedAt")] Comment comment)

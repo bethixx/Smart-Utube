@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smart_Utube.Data;
 using Smart_Utube.Models;
 
@@ -14,17 +15,26 @@ namespace Smart_Utube.Controllers
         }
 
         // ADD MOVIE TO PLAYLIST
+        [HttpPost]
         public async Task<IActionResult> AddToPlaylist(int movieId, int playlistId)
         {
-            var playlistMovie = new PlaylistMovie
+            var exists = await _context.PlaylistMovies
+                .AnyAsync(pm =>
+                    pm.MovieId == movieId &&
+                    pm.PlaylistId == playlistId);
+
+            if (!exists)
             {
-                MovieId = movieId,
-                PlaylistId = playlistId
-            };
+                var playlistMovie = new PlaylistMovie
+                {
+                    MovieId = movieId,
+                    PlaylistId = playlistId
+                };
 
-            _context.PlaylistMovies.Add(playlistMovie);
+                _context.PlaylistMovies.Add(playlistMovie);
 
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+            }
 
             return RedirectToAction("Details", "Playlists", new { id = playlistId });
         }
