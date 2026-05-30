@@ -19,8 +19,13 @@ namespace Smart_Utube.Controllers
         // GET: Playlists
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Playlists.Include(p => p.User);
-            return View(await appDbContext.ToListAsync());
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var playlists = await _context.Playlists
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+
+            return View(playlists);
         }
 
         // GET: Playlists/Details/5
@@ -57,7 +62,7 @@ namespace Smart_Utube.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Playlist playlist)
         {
-            playlist.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            playlist.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
             _context.Add(playlist);
 
@@ -83,9 +88,7 @@ namespace Smart_Utube.Controllers
             return View(playlist);
         }
 
-        // POST: Playlists/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Playlists/Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,UserId,Name")] Playlist playlist)

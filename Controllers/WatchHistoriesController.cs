@@ -1,26 +1,27 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Smart_Utube.Data;
+using System.Security.Claims;
 
-namespace Smart_Utube.Controllers
+public class WatchHistoriesController : Controller
 {
-    public class WatchHistoryController : Controller
+    private readonly AppDbContext _context;
+
+    public WatchHistoriesController(AppDbContext context)
     {
-        private readonly AppDbContext _context;
+        _context = context;
+    }
 
-        public WatchHistoryController(AppDbContext context)
-        {
-            _context = context;
-        }
+    public async Task<IActionResult> Index()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        public async Task<IActionResult> Index()
-        {
-            var history = await _context.WatchHistories
-                .Include(w => w.Movie)
-                .OrderByDescending(w => w.WatchedAt)
-                .ToListAsync();
+        var history = await _context.WatchHistories
+            .Where(w => w.UserId == userId)
+            .Include(w => w.Movie)
+            .OrderByDescending(w => w.WatchedAt)
+            .ToListAsync();
 
-            return View(history);
-        }
+        return View(history);
     }
 }

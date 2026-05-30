@@ -1,4 +1,5 @@
-﻿using Smart_Utube.DTOs.Movie;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Smart_Utube.DTOs.Movie;
 using Smart_Utube.Models;
 using Smart_Utube.Repositories;
 
@@ -13,9 +14,23 @@ namespace Smart_Utube.Services
             _repository = repository;
         }
 
-        public async Task<List<MovieReadDto>> GetAllAsync()
+        public async Task<List<MovieReadDto>> GetAllAsync(string? searchString, int? categoryId)
         {
             var movies = await _repository.GetAllAsync();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                movies = movies
+                    .Where(m => m.Title.Contains(searchString))
+                    .ToList();
+            }
+
+            if (categoryId.HasValue)
+            {
+                movies = movies
+                    .Where(m => m.MovieCategories.Any(mc => mc.CategoryId == categoryId))
+                    .ToList();
+            }
 
             return movies.Select(m => new MovieReadDto
             {
@@ -26,8 +41,8 @@ namespace Smart_Utube.Services
                 Duration = m.Duration,
                 CreatedAt = m.CreatedAt,
                 AverageRating = m.Ratings.Any()
-                ? m.Ratings.Average(r => r.Value)
-                : 0
+                    ? m.Ratings.Average(r => r.Value)
+                    : 0
             }).ToList();
         }
 
@@ -58,7 +73,7 @@ namespace Smart_Utube.Services
                 YouTubeUrl = dto.YouTubeUrl,
                 Description = dto.Description,
                 Duration = dto.Duration,
-                CreatedAt = DateTime.Today
+                CreatedAt = dto.CreatedAt
             };
 
             await _repository.AddAsync(movie);
@@ -74,6 +89,7 @@ namespace Smart_Utube.Services
             movie.YouTubeUrl = dto.YouTubeUrl;
             movie.Description = dto.Description;
             movie.Duration = dto.Duration;
+            movie.CreatedAt = dto.CreatedAt;
 
             await _repository.UpdateAsync(movie);
         }

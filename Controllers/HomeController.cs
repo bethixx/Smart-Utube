@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Smart_Utube.Data;
 using Smart_Utube.Models;
 using System.Diagnostics;
@@ -17,9 +18,30 @@ namespace Smart_Utube.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string searchString, int? categoryId)
         {
-            return View();
+            var movies = await _context.Movies
+                .Include(m => m.MovieCategories)
+                .ThenInclude(mc => mc.Category)
+                .ToListAsync();
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                movies = movies
+                    .Where(m => m.Title.Contains(searchString))
+                    .ToList();
+            }
+
+            if (categoryId.HasValue)
+            {
+                movies = movies
+                    .Where(m => m.MovieCategories.Any(mc => mc.CategoryId == categoryId))
+                    .ToList();
+            }
+
+            ViewBag.Categories = await _context.Categories.ToListAsync();
+
+            return View(movies);
         }
 
         public IActionResult Privacy()

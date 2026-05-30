@@ -5,7 +5,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Movies</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -52,7 +52,7 @@
                 @Html.DisplayFor(modelItem => item.Duration)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
+                @item.CreatedAt.ToString("dd/MM/yyyy")
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
@@ -90,13 +90,10 @@
                     }
 
             <br />
-
-                <a asp-controller="Favorites"
-                    asp-action="Add"
-                    asp-route-movieId="@item.Id"
-                    class="btn btn-warning btn-sm mt-1">
-                    ❤ Favorite
-                </a>
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Favorites" asp-action="Add" asp-route-movieId="@item.Id" class="btn btn-warning btn-sm mt-1">❤ Favorite</a>
+                    }
             </td>
         </tr>
 }

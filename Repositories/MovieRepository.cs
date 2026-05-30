@@ -17,6 +17,8 @@ namespace Smart_Utube.Repositories
         {
             return await _context.Movies
                 .Include(m => m.Ratings)
+                .Include(m => m.MovieCategories)
+                    .ThenInclude(mc => mc.Category)
                 .ToListAsync();
         }
 

@@ -6,6 +6,7 @@ using Smart_Utube.Services;
 using Smart_Utube.Data;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Smart_Utube.Controllers
 {
@@ -21,18 +22,11 @@ namespace Smart_Utube.Controllers
         }
 
         // GET: Movies
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, int? categoryId)
         {
-            var movies = await _movieService.GetAllAsync();
+            var movies = await _movieService.GetAllAsync(searchString, categoryId);
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId != null)
-            {
-                ViewBag.Playlists = await _context.Playlists
-                    .Where(p => p.UserId == userId)
-                    .ToListAsync();
-            }
+            ViewBag.Categories = await _context.Categories.ToListAsync();
 
             return View(movies);
         }
@@ -85,7 +79,8 @@ namespace Smart_Utube.Controllers
                 Title = movie.Title,
                 YouTubeUrl = movie.YouTubeUrl,
                 Description = movie.Description,
-                Duration = movie.Duration
+                Duration = movie.Duration,
+                CreatedAt = movie.CreatedAt
             };
 
             return View(dto);
@@ -126,23 +121,22 @@ namespace Smart_Utube.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize]
         public async Task<IActionResult> Watch(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var watch = new WatchHistory
+            var movie = await _movieService.GetByIdAsync(id);
+            if (movie == null) return NotFound();
+
+            _context.WatchHistories.Add(new WatchHistory
             {
                 MovieId = id,
-                UserId = userId,
-                WatchedAt = DateTime.UtcNow
-            };
+                UserId = userId!,
+                WatchedAt = DateTime.Now
+            });
 
-            _context.WatchHistories.Add(watch);
             await _context.SaveChangesAsync();
-
-            var movie = await _movieService.GetByIdAsync(id);
-
-            if (movie == null) return NotFound();
 
             return Redirect(movie.YouTubeUrl);
         }

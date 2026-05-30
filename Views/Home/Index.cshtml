@@ -1,8 +1,54 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Smart Utube</h1>
-    <p></p>
+<div class="text-center mb-5">
+    <h1 class="display-4">🎬 Smart Utube</h1>
+    <p>Watch, rate and organize your favorite movies.</p>
+
+    @if (!User.Identity!.IsAuthenticated)
+    {
+        <a asp-area="Identity"
+           asp-page="/Account/Register"
+           class="btn btn-primary">
+            Register
+        </a>
+
+        <a asp-area="Identity"
+           asp-page="/Account/Login"
+           class="btn btn-outline-primary">
+            Login
+        </a>
+    }
+</div>
+
+<div class="row">
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5>🎥 Watch Movies</h5>
+                <p>Browse the movie collection.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5>⭐ Rate Movies</h5>
+                <p>Share your opinion.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5>📂 Create Playlists</h5>
+                <p>Organize movies your way.</p>
+            </div>
+        </div>
+    </div>
+
 </div>

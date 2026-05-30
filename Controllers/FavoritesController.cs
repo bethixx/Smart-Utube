@@ -3,9 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Smart_Utube.Models;
 using Smart_Utube.Data;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Smart_Utube.Controllers
 {
+    [Authorize]
     public class FavoritesController : Controller
     {
         private readonly AppDbContext _context;
@@ -15,23 +17,35 @@ namespace Smart_Utube.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var favorites = await _context.Favorites
+                .Where(f => f.UserId == userId)
+                .Include(f => f.Movie)
+                .ToListAsync();
+
+            return View(favorites);
         }
 
         public async Task<IActionResult> Add(int movieId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var favorite = new Favorite
-            {
-                MovieId = movieId,
-                UserId = userId
-            };
+            var exists = await _context.Favorites
+                .AnyAsync(f => f.UserId == userId && f.MovieId == movieId);
 
-            _context.Favorites.Add(favorite);
-            await _context.SaveChangesAsync();
+            if (!exists)
+            {
+                _context.Favorites.Add(new Favorite
+                {
+                    UserId = userId,
+                    MovieId = movieId
+                });
+
+                await _context.SaveChangesAsync();
+            }
 
             return RedirectToAction("Index", "Movies");
         }
