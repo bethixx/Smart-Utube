@@ -26,6 +26,8 @@ namespace Smart_Utube.Repositories
         {
             return await _context.Movies
                 .Include(m => m.Ratings)
+                .Include(m => m.Comments)
+                .ThenInclude(c => c.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 

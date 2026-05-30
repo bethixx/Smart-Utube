@@ -9,5 +9,6 @@
         public int Duration { get; set; }
         public DateTime CreatedAt { get; set; }
         public double AverageRating { get; set; }
+        public List<CommentReadDto> Comments { get; set; } = [];
     }
 }

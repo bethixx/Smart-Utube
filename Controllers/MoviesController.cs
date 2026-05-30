@@ -26,8 +26,6 @@ namespace Smart_Utube.Controllers
         {
             var movies = await _movieService.GetAllAsync(searchString, categoryId);
 
-            ViewBag.Categories = await _context.Categories.ToListAsync();
-
             return View(movies);
         }
 

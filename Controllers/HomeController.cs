@@ -39,8 +39,6 @@ namespace Smart_Utube.Controllers
                     .ToList();
             }
 
-            ViewBag.Categories = await _context.Categories.ToListAsync();
-
             return View(movies);
         }
 

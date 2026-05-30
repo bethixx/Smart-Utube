@@ -41,33 +41,7 @@
                         }
                     </ul>
 
-                    <form class="d-flex me-3"
-                          method="get"
-                          asp-controller="Movies"
-                          asp-action="Index">
-
-                        <input class="form-control me-2"
-                               type="search"
-                               name="searchString"
-                               placeholder="Search movies..." />
-
-                        <select class="form-control me-2"
-                                name="categoryId">
-                            <option value="">All categories</option>
-
-                            @if (ViewBag.Categories != null)
-                            {
-                                foreach (var c in ViewBag.Categories)
-                                {
-                                    <option value="@c.Id">@c.Name</option>
-                                }
-                            }
-                        </select>
-
-                        <button class="btn btn-outline-dark" type="submit">
-                            Search
-                        </button>
-                    </form>
+                    @await Component.InvokeAsync("Categories")
 
                     <partial name="_LoginPartial" />
                 </div>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using Smart_Utube.DTOs.Movie;
 using Smart_Utube.Models;
 using Smart_Utube.Repositories;
@@ -21,7 +22,7 @@ namespace Smart_Utube.Services
             if (!string.IsNullOrEmpty(searchString))
             {
                 movies = movies
-                    .Where(m => m.Title.Contains(searchString))
+                    .Where(m => m.Title.ToLower().Contains(searchString.ToLower()))
                     .ToList();
             }
 
@@ -62,7 +63,16 @@ namespace Smart_Utube.Services
                 CreatedAt = m.CreatedAt,
                 AverageRating = m.Ratings.Any()
                 ? m.Ratings.Average(r => r.Value)
-                : 0
+                : 0,
+
+                Comments = m.Comments.Select(c => new CommentReadDto
+                {
+                    Id = c.Id,
+                    Content = c.Content,
+                    CreatedAt = c.CreatedAt,
+                    UserNickname = c.User.Nickname,
+                    UserId = c.UserId
+                }).ToList()
             };
         }
         public async Task CreateAsync(MovieCreateDto dto)
