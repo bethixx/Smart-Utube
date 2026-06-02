@@ -2,100 +2,152 @@
 @using Smart_Utube.Models
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Movies";
 }
 
-<h1>Movies</h1>
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <h1>Movies</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                Watch on YouTube
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Duration)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-                <td>
-                    <a asp-controller="Movies"
-                       asp-action="Watch"
-                       asp-route-id="@item.Id"
-                       class="btn btn-primary">
-                        ▶ Play
-                    </a>
-                </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Duration)
-            </td>
-            <td>
-                @item.CreatedAt.ToString("dd/MM/yyyy")
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-primary">
+            ➕ Add Movie
+        </a>
+    }
+</div>
 
-            <br />
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <span style="font-size:64px;">🎬</span>
+        <h3>No Movies Found</h3>
+        <p>There are no movies matching your criteria.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Watch</th>
+                    <th>Description</th>
+                    <th>Duration</th>
+                    <th>Added</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <strong>@item.Title</strong>
+                        </td>
+                        <td>
+                            <a asp-controller="Movies"
+                               asp-action="Watch"
+                               asp-route-id="@item.Id"
+                               class="btn btn-primary btn-sm">
+                                ▶️ Play
+                            </a>
+                        </td>
+                        <td>
+                            <span class="text-truncate d-inline-block" style="max-width: 200px;" title="@item.Description">
+                                @item.Description
+                            </span>
+                        </td>
+                        <td>@item.Duration</td>
+                        <td>@item.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-secondary btn-sm">
+                                    Details
+                                </a>
 
-                    @if (ViewBag.Playlists != null)
-                    {
-                        <form asp-controller="PlaylistMovies"
-                              asp-action="AddToPlaylist"
-                              method="post">
-
-                            <input type="hidden"
-                                   name="movieId"
-                                   value="@item.Id" />
-
-                            <select name="playlistId"
-                                    class="form-control form-control-sm">
-
-                                @foreach (var playlist in ViewBag.Playlists)
+                                @if (User.IsInRole("Admin"))
                                 {
-                                    <option value="@playlist.Id">
-                                        @playlist.Name
-                                    </option>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-secondary btn-sm">
+                                        Edit
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">
+                                        Delete
+                                    </a>
                                 }
-                            </select>
 
-                            <button type="submit"
-                                    class="btn btn-success btn-sm mt-1">
-                                + Playlist
-                            </button>
-                        </form>
-                    }
+                                @if (User?.Identity?.IsAuthenticated == true)
+                                {
+                                    <a asp-controller="Favorites"
+                                       asp-action="Add"
+                                       asp-route-movieId="@item.Id"
+                                       class="btn btn-warning btn-sm"
+                                       title="Add to Favorites">
+                                        ❤️
+                                    </a>
+                                }
+                            </div>
 
-            <br />
-                    @if (User?.Identity?.IsAuthenticated == true)
-                    {
-                        <a asp-controller="Favorites" asp-action="Add" asp-route-movieId="@item.Id" class="btn btn-warning btn-sm mt-1">❤ Favorite</a>
-                    }
-            </td>
-        </tr>
+                            @if (ViewBag.Playlists != null && User?.Identity?.IsAuthenticated == true)
+                            {
+                                <form asp-controller="PlaylistMovies" asp-action="AddToPlaylist" method="post" class="playlist-form mt-2">
+                                    <input type="hidden" name="movieId" value="@item.Id" />
+                                    <div class="d-flex gap-2">
+                                        <select name="playlistId" class="form-control form-control-sm">
+                                            @foreach (var playlist in ViewBag.Playlists)
+                                            {
+                                                <option value="@playlist.Id">@playlist.Name</option>
+                                            }
+                                        </select>
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            ➕
+                                        </button>
+                                    </div>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
-    </tbody>
-</table>
+
+<style>
+    .page-header {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .playlist-form {
+        max-width: 250px;
+    }
+
+    .playlist-form .d-flex {
+        gap: 0.5rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-surface);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-color);
+    }
+
+    .empty-state h3 {
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: var(--text-muted);
+        margin-bottom: 0;
+    }
+</style>

@@ -9,24 +9,83 @@
 }
 
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-            <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@(currentUser?.Nickname ?? currentUser?.Email)</a>
-    </li>
-    <li class="nav-item">
-        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
-}
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a id="manage" class="nav-link user-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
+                <span class="user-avatar">
+                    @(currentUser?.Nickname?.Substring(0, 1).ToUpper() ?? currentUser?.Email?.Substring(0, 1).ToUpper())
+                </span>
+                <span class="user-name">@(currentUser?.Nickname ?? currentUser?.Email)</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button id="logout" type="submit" class="nav-link btn-logout">
+                    ↩️ Logout
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link" id="register" asp-area="Identity" asp-page="/Account/Register">
+                Register
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="btn btn-primary btn-sm" id="login" asp-area="Identity" asp-page="/Account/Login" style="margin-left: 0.5rem;">
+                Sign In
+            </a>
+        </li>
+    }
 </ul>
+
+<style>
+    .user-link {
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .user-name {
+        color: var(--text-primary);
+        font-weight: 500;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .btn-logout {
+        background: none !important;
+        border: none !important;
+        color: var(--text-secondary) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.5rem !important;
+        cursor: pointer;
+        padding: 0.5rem 1rem !important;
+        border-radius: var(--radius-md);
+        transition: var(--transition);
+    }
+
+    .btn-logout:hover {
+        color: var(--danger) !important;
+        background: rgba(255, 68, 68, 0.1) !important;
+    }
+</style>

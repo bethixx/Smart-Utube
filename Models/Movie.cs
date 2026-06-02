@@ -18,6 +18,5 @@ namespace Smart_Utube.Models
         public ICollection<PlaylistMovie> PlaylistMovies { get; set; } = new List<PlaylistMovie>();
         public ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
         public ICollection<WatchHistory> WatchHistories { get; set; } = new List<WatchHistory>();
-        public ICollection<ExternalDescription> ExternalDescriptions { get; set; } = new List<ExternalDescription>();
     }
 }

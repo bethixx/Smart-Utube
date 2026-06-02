@@ -9,5 +9,6 @@ namespace Smart_Utube.Repositories
         Task AddAsync(Movie movie);
         Task UpdateAsync(Movie movie);
         Task DeleteAsync(int id);
+        Task UpdateWithCategoriesAsync(Movie movie, List<int> categoryIds);
     }
 }

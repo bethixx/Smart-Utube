@@ -50,12 +50,14 @@ namespace Smart_Utube.Controllers
             return RedirectToAction("Index", "Movies");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(int movieId)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var favorite = await _context.Favorites
-                .FindAsync(userId, movieId);
+                .FirstOrDefaultAsync(f => f.UserId == userId && f.MovieId == movieId);
 
             if (favorite != null)
             {
@@ -63,7 +65,7 @@ namespace Smart_Utube.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            return RedirectToAction("Index", "Movies");
+            return RedirectToAction(nameof(Index));
         }
     }
 }

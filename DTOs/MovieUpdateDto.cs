@@ -8,5 +8,6 @@
         public string? Description { get; set; }
         public int Duration { get; set; }
         public DateTime CreatedAt { get; set; }
+        public List<int> CategoryIds { get; set; } = new();
     }
 }

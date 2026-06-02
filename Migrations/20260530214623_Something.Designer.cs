@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Smart_Utube.Data;
 
@@ -11,9 +12,11 @@ using Smart_Utube.Data;
 namespace Smart_Utube.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260530214623_Something")]
+    partial class Something
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -278,6 +281,34 @@ namespace Smart_Utube.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("Smart_Utube.Models.ExternalDescription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("GeneratedText")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MovieId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Source")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MovieId");
+
+                    b.ToTable("ExternalDescriptions");
+                });
+
             modelBuilder.Entity("Smart_Utube.Models.Favorite", b =>
                 {
                     b.Property<string>("UserId")
@@ -500,6 +531,17 @@ namespace Smart_Utube.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Smart_Utube.Models.ExternalDescription", b =>
+                {
+                    b.HasOne("Smart_Utube.Models.Movie", "Movie")
+                        .WithMany("ExternalDescriptions")
+                        .HasForeignKey("MovieId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Movie");
+                });
+
             modelBuilder.Entity("Smart_Utube.Models.Favorite", b =>
                 {
                     b.HasOne("Smart_Utube.Models.Movie", "Movie")
@@ -614,6 +656,8 @@ namespace Smart_Utube.Migrations
             modelBuilder.Entity("Smart_Utube.Models.Movie", b =>
                 {
                     b.Navigation("Comments");
+
+                    b.Navigation("ExternalDescriptions");
 
                     b.Navigation("Favorites");
 

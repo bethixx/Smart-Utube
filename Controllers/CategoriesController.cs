@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Smart_Utube.DTOs.Category;
 using Smart_Utube.Services;
 
@@ -33,12 +34,14 @@ namespace Smart_Utube.Controllers
         }
 
         // GET: Categories/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: Categories/Create
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CategoryCreateDto dto)
@@ -52,6 +55,7 @@ namespace Smart_Utube.Controllers
         }
 
         // GET: Categories/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -71,7 +75,8 @@ namespace Smart_Utube.Controllers
             return View(dto);
         }
 
-        // POST: Categories/Edit/5
+        // POST: Categories/Edit
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(CategoryUpdateDto dto)
@@ -84,7 +89,8 @@ namespace Smart_Utube.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Categories/Delete/5
+        // GET: Categories/Delete
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -96,7 +102,8 @@ namespace Smart_Utube.Controllers
             return View(category);
         }
 
-        // POST: Categories/Delete/5
+        // POST: Categories/Delete
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

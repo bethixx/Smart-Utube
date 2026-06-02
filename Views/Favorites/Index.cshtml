@@ -1,34 +1,115 @@
 ﻿@model IEnumerable<Smart_Utube.Models.Favorite>
 
-<h1>My Favorites</h1>
+@{
+    ViewData["Title"] = "My Favorites";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <h1>❤️ My Favorites</h1>
+</div>
 
 @if (!Model.Any())
 {
-    <p>No favorite movies yet.</p>
+    <div class="empty-state">
+        <span style="font-size:64px;">❤️</span>
+        <h3>No Favorites Yet</h3>
+        <p>Start adding movies to your favorites to see them here.</p>
+        <a asp-controller="Movies" asp-action="Index" class="btn btn-primary mt-3">
+            Browse Movies
+        </a>
+    </div>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Movie</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var favorite in Model)
-            {
-                <tr>
-                    <td>@favorite.Movie.Title</td>
-                    <td>
-                        <a asp-action="Remove"
-                           asp-route-movieId="@favorite.MovieId"
-                           class="btn btn-danger">
-                            Remove
+    <div class="favorites-grid">
+        @foreach (var favorite in Model)
+        {
+            <div class="favorite-card card">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div class="favorite-info">
+                        <h5 class="favorite-title">@favorite.Movie.Title</h5>
+                        <a asp-controller="Movies" asp-action="Details" asp-route-id="@favorite.MovieId" class="view-link">
+                            View Details →
                         </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    </div>
+                    <div class="favorite-actions">
+                        <a asp-controller="Movies"
+                           asp-action="Watch"
+                           asp-route-id="@favorite.MovieId"
+                           class="btn btn-primary btn-sm">
+                            ▶️ Play
+                        </a>
+                        <form asp-controller="Favorites"
+                              asp-action="Remove"
+                              method="post"
+                              style="display:inline;">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="movieId" value="@favorite.MovieId" />
+
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Remove from favorites?')">
+                                ❌
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }
+
+<style>
+    .page-header {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-surface);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-color);
+    }
+
+    .empty-state h3 {
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: var(--text-muted);
+        margin-bottom: 0;
+    }
+
+    .favorites-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .favorite-card {
+        transition: var(--transition);
+    }
+
+    .favorite-card:hover {
+        border-color: var(--primary);
+    }
+
+    .favorite-title {
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    .view-link {
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .favorite-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+</style>

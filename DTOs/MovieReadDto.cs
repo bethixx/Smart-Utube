@@ -10,5 +10,7 @@
         public DateTime CreatedAt { get; set; }
         public double AverageRating { get; set; }
         public List<CommentReadDto> Comments { get; set; } = [];
+        public List<int> CategoryIds { get; set; } = new();
+        public List<string> Categories { get; set; } = new();
     }
 }

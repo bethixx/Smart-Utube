@@ -61,9 +61,14 @@ namespace Smart_Utube.Services
                 Description = m.Description,
                 Duration = m.Duration,
                 CreatedAt = m.CreatedAt,
+
                 AverageRating = m.Ratings.Any()
                 ? m.Ratings.Average(r => r.Value)
                 : 0,
+
+                Categories = m.MovieCategories
+                    .Select(mc => mc.Category.Name)
+                    .ToList(),
 
                 Comments = m.Comments.Select(c => new CommentReadDto
                 {
@@ -72,7 +77,9 @@ namespace Smart_Utube.Services
                     CreatedAt = c.CreatedAt,
                     UserNickname = c.User.Nickname,
                     UserId = c.UserId
-                }).ToList()
+                }).ToList(),
+
+                CategoryIds = m.MovieCategories.Select(mc => mc.CategoryId).ToList()
             };
         }
         public async Task CreateAsync(MovieCreateDto dto)
@@ -83,7 +90,12 @@ namespace Smart_Utube.Services
                 YouTubeUrl = dto.YouTubeUrl,
                 Description = dto.Description,
                 Duration = dto.Duration,
-                CreatedAt = dto.CreatedAt
+                CreatedAt = dto.CreatedAt,
+
+                MovieCategories = dto.CategoryIds.Select(id => new MovieCategory
+                {
+                    CategoryId = id
+                }).ToList()
             };
 
             await _repository.AddAsync(movie);
@@ -101,7 +113,7 @@ namespace Smart_Utube.Services
             movie.Duration = dto.Duration;
             movie.CreatedAt = dto.CreatedAt;
 
-            await _repository.UpdateAsync(movie);
+            await _repository.UpdateWithCategoriesAsync(movie, dto.CategoryIds);
         }
 
         public async Task DeleteAsync(int id)

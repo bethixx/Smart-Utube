@@ -2,53 +2,128 @@
     ViewData["Title"] = "Home";
 }
 
-<div class="text-center mb-5">
-    <h1 class="display-4">🎬 Smart Utube</h1>
-    <p>Watch, rate and organize your favorite movies.</p>
+<div class="hero-section text-center mb-5">
+    <h1 class="display-4">Smart Utube</h1>
+    <p class="lead">Watch, rate and organize your favorite movies.</p>
 
     @if (!User.Identity!.IsAuthenticated)
     {
-        <a asp-area="Identity"
-           asp-page="/Account/Register"
-           class="btn btn-primary">
-            Register
-        </a>
-
-        <a asp-area="Identity"
-           asp-page="/Account/Login"
-           class="btn btn-outline-primary">
-            Login
-        </a>
+        <div class="hero-buttons mt-4">
+            <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg">
+                Get Started
+            </a>
+            <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary btn-lg">
+                Sign In
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="hero-buttons mt-4">
+            <a asp-controller="Movies" asp-action="Index" class="btn btn-primary btn-lg">
+                Browse Movies
+            </a>
+        </div>
     }
 </div>
 
-<div class="row">
-
+<div class="row g-4">
     <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5>🎥 Watch Movies</h5>
-                <p>Browse the movie collection.</p>
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3">
+                    <span style="font-size:48px;">▶️</span>
+                </div>
+                <h5>Watch Movies</h5>
+                <p>Browse our extensive movie collection and watch directly on YouTube.</p>
             </div>
         </div>
     </div>
 
     <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5>⭐ Rate Movies</h5>
-                <p>Share your opinion.</p>
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3">
+                    <span style="font-size:48px;">⭐</span>
+                </div>
+                <h5>Rate Movies</h5>
+                <p>Share your opinion and help others discover great content.</p>
             </div>
         </div>
     </div>
 
     <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5>📂 Create Playlists</h5>
-                <p>Organize movies your way.</p>
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon mb-3">
+                    <div class="feature-icon mb-3">
+                        <span style="font-size:48px;">📂</span>
+                    </div>
+                </div>
+                <h5>Create Playlists</h5>
+                <p>Organize movies your way with custom playlists.</p>
             </div>
         </div>
     </div>
-
 </div>
+
+@if (ViewBag.Quote != null)
+{
+    <div class="mt-5">
+        <div class="blockquote">
+            <h4 class="mb-3" style="color: var(--text-secondary);">Quote of the Day</h4>
+            <p>"@ViewBag.Quote.Quote"</p>
+            <footer class="blockquote-footer">@ViewBag.Quote.Author</footer>
+        </div>
+    </div>
+}
+
+@if (ViewBag.Temp != null)
+{
+    <div class="text-center mt-4">
+        <div class="card" style="display: inline-block; padding: 1rem 2rem;">
+            <div class="card-body">
+                🌡️ Temperature:
+                <strong>@ViewBag.Temp °C</strong>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .hero-section {
+        background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-dark) 100%);
+        padding: 5rem 2rem;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-color);
+    }
+
+    .hero-section .lead {
+        color: var(--text-secondary);
+        font-size: 1.25rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .feature-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 80px;
+        height: 80px;
+        background: var(--bg-surface-light);
+        border-radius: 50%;
+        margin: 0 auto;
+    }
+
+    .card.h-100 {
+        min-height: 220px;
+    }
+</style>

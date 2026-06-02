@@ -1,174 +1,297 @@
 ﻿@model Smart_Utube.DTOs.Movie.MovieReadDto
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.Title;
 }
 
-<h1>Details</h1>
-
-<div>
-    <h4>Movie</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.YouTubeUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.YouTubeUrl)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Duration)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Duration)
-        </dd>
-        <dt class="col-sm-2">
-            Created
-        </dt>
-        <dd class="col-sm-10">
-            @Model.CreatedAt.ToString("dd/MM/yyyy")
-        </dd>
-        <dt class="col-sm-2">
-            Rating
-        </dt>
-        <dd class="col-sm-10">
-            ⭐ @Model.AverageRating.ToString("0.0") / 5
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-
-    <br />
-
-    <h4>Rate this movie</h4>
-
-    <form asp-controller="Ratings"
-          asp-action="Rate"
-          method="post">
-
-        <input type="hidden"
-               name="movieId"
-               value="@Model!.Id" />
-
-        <select name="value" class="form-control">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-        </select>
-
-        <br />
-
-        <button type="submit"
-                class="btn btn-success">
-            Rate
-        </button>
-    </form>
-    <a asp-controller="Ratings"
-       asp-action="Delete"
-       asp-route-movieId="@Model.Id"
-       class="btn btn-danger mt-2">
-        Remove Rating
+<div class="movie-detail-page">
+    <a asp-action="Index" class="back-link mb-4 d-inline-flex align-items-center">
+        ⬅️ Back to Movies
     </a>
 
-    <br />
+    <div class="movie-header card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h1 class="movie-title">@Model.Title</h1>
+                    <div class="movie-meta">
+                        <span class="badge bg-secondary">@Model.Duration</span>
+                        <span class="meta-separator">|</span>
+                        <span class="meta-date">Added @Model.CreatedAt.ToString("MMMM dd, yyyy")</span>
+                    </div>
+                </div>
+                <div class="rating-badge">
+                    <span class="rating-value">@Model.AverageRating.ToString("0.0")</span>
+                    <span class="rating-max">/ 5</span>
+                </div>
+            </div>
 
-    <a asp-controller="Comments"
-       asp-action="Create"
-       asp-route-movieId="@Model.Id"
-       class="btn btn-primary">
-        Add comment
-    </a>
-
-    <br />
-
-    <h3>Comments</h3>
-
-    @if (Model.Comments.Any())
-    {
-        @foreach (var comment in Model.Comments)
-        {
-            <div class="border p-2 mb-2">
-
-                <strong>@comment.UserNickname</strong>
-
-                <p>@comment.Content</p>
-
-                @{
-                    var diff = DateTime.Now - comment.CreatedAt;
-                    string timeText;
-
-                    if (diff.TotalMinutes < 1)
+            @if (Model.Categories.Any())
+            {
+                <div class="categories mt-3">
+                    @foreach (var category in Model.Categories)
                     {
-                        timeText = "just now";
+                        <span class="badge bg-primary">@category</span>
                     }
-                    else if (diff.TotalMinutes < 60)
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Description</h5>
+                </div>
+                <div class="card-body">
+                    <p class="movie-description">@Model.Description</p>
+
+                    <div class="movie-link mt-3">
+                        <strong>YouTube URL:</strong>
+                        <a href="@Model.YouTubeUrl" target="_blank" rel="noopener noreferrer" class="ms-2">
+                            @Model.YouTubeUrl
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Comments (@Model.Comments.Count())</h5>
+                    <a asp-controller="Comments"
+                       asp-action="Create"
+                       asp-route-movieId="@Model.Id"
+                       class="btn btn-primary btn-sm">
+                        💬 Add Comment
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if (!Model.Comments.Any())
                     {
-                        timeText = $"{(int)diff.TotalMinutes} minutes ago";
-                    }
-                    else if (diff.TotalHours < 24)
-                    {
-                        timeText = $"{(int)diff.TotalHours} hours ago";
+                        <div class="empty-comments text-center py-4">
+                            <div style="font-size:48px;">💬</div>
+                            <p>No comments yet. Be the first to comment!</p>
+                        </div>
                     }
                     else
                     {
-                        timeText = $"{(int)diff.TotalDays} days ago";
+                        <div class="comments-list">
+                            @foreach (var comment in Model.Comments)
+                            {
+                                <div class="comment-item">
+                                    <div class="comment-header">
+                                        <div class="comment-avatar">
+                                            @comment.UserNickname?.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div class="comment-meta">
+                                            <strong class="comment-author">@comment.UserNickname</strong>
+                                            @{
+                                                var diff = DateTime.Now - comment.CreatedAt;
+                                                string timeText;
+                                                if (diff.TotalMinutes < 1) { timeText = "just now"; }
+                                                else if (diff.TotalMinutes < 60) { timeText = $"{(int)diff.TotalMinutes} minutes ago"; }
+                                                else if (diff.TotalHours < 24) { timeText = $"{(int)diff.TotalHours} hours ago"; }
+                                                else { timeText = $"{(int)diff.TotalDays} days ago"; }
+                                            }
+                                            <span class="comment-time">@timeText</span>
+                                        </div>
+                                    </div>
+                                    <p class="comment-content">@comment.Content</p>
+
+                                    @if (User.Identity?.IsAuthenticated == true &&
+                                   (comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                                   || User.IsInRole("Admin")))
+                                    {
+                                        <form asp-controller="Comments" asp-action="Delete" asp-route-id="@comment.Id" method="post" class="comment-actions">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-danger btn-sm">
+                                                🗑️ Delete
+                                            </button>
+                                        </form>
+                                    }
+
+                                    @if (User.Identity?.IsAuthenticated == true &&
+                                   comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+                                    {
+                                        <a asp-controller="Comments"
+                                           asp-action="Edit"
+                                           asp-route-id="@comment.Id"
+                                           class="btn btn-secondary btn-sm">
+                                            ✏️ Edit
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </div>
                     }
-                }
-
-                <small class="text-muted">
-                    @timeText
-                </small>
-
-                @if (User.Identity?.IsAuthenticated == true &&
-               comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
-                {
-                    <form asp-controller="Comments"
-                          asp-action="Delete"
-                          asp-route-id="@comment.Id"
-                          method="post"
-                          style="display:inline">
-
-                        @Html.AntiForgeryToken()
-
-                        <button type="submit" class="btn btn-danger btn-sm">
-                            Delete
-                        </button>
-
-                    </form>
-                }
-
-                @if (User.Identity?.IsAuthenticated == true &&
-               comment.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
-                {
-                    <a asp-controller="Comments"
-                       asp-action="Edit"
-                       asp-route-id="@comment.Id"
-                       class="btn btn-warning btn-sm ms-1">
-                        Edit
-                    </a>
-                }
-
+                </div>
             </div>
-        }
-    }
-    else
-    {
-        <p>No comments yet.</p>
-    }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Rate this Movie</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Ratings" asp-action="Rate" method="post">
+                        <input type="hidden" name="movieId" value="@Model!.Id" />
+
+                        <div class="star-rating mb-3">
+                            <select name="value" class="form-control">
+                                <option value="1">1 Star</option>
+                                <option value="2">2 Stars</option>
+                                <option value="3">3 Stars</option>
+                                <option value="4">4 Stars</option>
+                                <option value="5" selected>5 Stars</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">
+                            ⭐ Submit Rating
+                        </button>
+                    </form>
+
+                    <a asp-controller="Ratings" asp-action="Delete" asp-route-movieId="@Model.Id" class="btn btn-secondary w-100 mt-2">
+                        Remove My Rating
+                    </a>
+                </div>
+            </div>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Admin Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-secondary w-100 mb-2">
+                            ✏️ Edit Movie
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model?.Id" class="btn btn-danger w-100">
+                            🗑️ Delete Movie
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
+
+<style>
+    .back-link {
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+        .back-link:hover {
+            color: var(--text-primary);
+        }
+
+    .movie-title {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .movie-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    .meta-separator {
+        color: var(--border-color);
+    }
+
+    .rating-badge {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--bg-surface-light);
+        padding: 0.75rem 1.25rem;
+        border-radius: var(--radius-md);
+    }
+
+    .rating-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--warning);
+    }
+
+    .rating-max {
+        color: var(--text-muted);
+    }
+
+    .categories {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .movie-description {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--text-secondary);
+        margin-bottom: 0;
+    }
+
+    .comments-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .comment-item {
+        background: var(--bg-surface-light);
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-color);
+    }
+
+    .comment-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .comment-avatar {
+        width: 36px;
+        height: 36px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .comment-meta {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .comment-author {
+        color: var(--text-primary);
+        font-size: 0.9375rem;
+    }
+
+    .comment-time {
+        color: var(--text-muted);
+        font-size: 0.8125rem;
+    }
+
+    .comment-content {
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+    .comment-actions {
+        display: inline-block;
+    }
+</style>

@@ -7,6 +7,7 @@ using Smart_Utube.Data;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Smart_Utube.Controllers
 {
@@ -26,6 +27,15 @@ namespace Smart_Utube.Controllers
         {
             var movies = await _movieService.GetAllAsync(searchString, categoryId);
 
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+                ViewBag.Playlists = await _context.Playlists
+                    .Where(p => p.UserId == userId)
+                    .ToListAsync();
+            }
+
             return View(movies);
         }
 
@@ -42,25 +52,42 @@ namespace Smart_Utube.Controllers
         }
 
         // GET: Movies/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
+            ViewBag.Categories = new MultiSelectList(
+                _context.Categories,
+                "Id",
+                "Name"
+            );
+
             return View();
         }
 
         // POST: Movies/Create
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MovieCreateDto dto)
         {
             if (!ModelState.IsValid)
+            {
+                ViewBag.Categories = new MultiSelectList(
+                    _context.Categories,
+                    "Id",
+                    "Name"
+                );
+
                 return View(dto);
+            }
 
             await _movieService.CreateAsync(dto);
 
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Movies/Edit/5
+        // GET: Movies/Edit
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -71,6 +98,13 @@ namespace Smart_Utube.Controllers
             if (movie is null)
                 return NotFound();
 
+            ViewBag.Categories = new MultiSelectList(
+                _context.Categories,
+                "Id",
+                "Name",
+                movie.CategoryIds
+            );
+
             var dto = new MovieUpdateDto
             {
                 Id = movie.Id,
@@ -78,13 +112,15 @@ namespace Smart_Utube.Controllers
                 YouTubeUrl = movie.YouTubeUrl,
                 Description = movie.Description,
                 Duration = movie.Duration,
-                CreatedAt = movie.CreatedAt
+                CreatedAt = movie.CreatedAt,
+                CategoryIds = movie.CategoryIds
             };
 
             return View(dto);
         }
 
-        // POST: Movies/Edit/5
+        // POST: Movies/Edit
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(MovieUpdateDto dto)
@@ -97,7 +133,8 @@ namespace Smart_Utube.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Movies/Delete/5
+        // GET: Movies/Delete
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -109,7 +146,8 @@ namespace Smart_Utube.Controllers
             return View(movie);
         }
 
-        // POST: Movies/Delete/5
+        // POST: Movies/Delete
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

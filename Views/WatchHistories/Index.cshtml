@@ -4,38 +4,115 @@
     ViewData["Title"] = "Watch History";
 }
 
-<h1>Watch History</h1>
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        🕒 Watch History
+    </h1>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Movie</th>
-            <th>Watched At</th>
-            <th>Watch</th>
-        </tr>
-    </thead>
+    @if (Model.Any())
+    {
+        <form asp-action="ClearAll" asp-controller="WatchHistories" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-warning" onclick="return confirm('Clear all watch history?')">
+                🗑️ Clear All History
+            </button>
+        </form>
+    }
+</div>
 
-    <tbody>
+@if (!Model.Any())
+{
+    <div class="empty-state">
+        <div style="font-size:64px;">🕒</div>
+        <h3>No Watch History</h3>
+        <p>Movies you watch will appear here.</p>
+        <a asp-controller="Movies" asp-action="Index" class="btn btn-primary mt-3">
+            Browse Movies
+        </a>
+    </div>
+}
+else
+{
+    <div class="history-list">
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @item.Movie.Title
-                </td>
-
-                <td>
-                    @item.WatchedAt.ToString("dd/MM/yyyy HH:mm")
-                </td>
-
-                <td>
-                    <a asp-controller="Movies"
-                       asp-action="Watch"
-                       asp-route-id="@item.MovieId"
-                       class="btn btn-primary">
-                        ▶ Watch again
-                    </a>
-                </td>
-            </tr>
+            <div class="history-item card">
+                <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div class="history-info">
+                        <h5 class="history-title">@item.Movie.Title</h5>
+                        <span class="history-time">
+                            🕒 Watched on @item.WatchedAt.ToString("MMM dd, yyyy 'at' HH:mm")
+                        </span>
+                    </div>
+                    <div class="history-actions">
+                        <a asp-controller="Movies" asp-action="Watch" asp-route-id="@item.MovieId" class="btn btn-primary btn-sm">
+                            ▶️ Watch Again
+                        </a>
+                        <form asp-action="Delete" asp-controller="WatchHistories" asp-route-id="@item.Id" method="post" style="display: inline;">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Remove from history?')">
+                                🗑️ Remove
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+}
+
+<style>
+    .page-header {
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: var(--bg-surface);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-color);
+    }
+
+        .empty-state h3 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--text-muted);
+            margin-bottom: 0;
+        }
+
+    .history-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .history-item {
+        transition: var(--transition);
+    }
+
+        .history-item:hover {
+            border-color: var(--text-muted);
+        }
+
+    .history-title {
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+    }
+
+    .history-time {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .history-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+</style>

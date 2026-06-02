@@ -22,7 +22,6 @@ namespace Smart_Utube.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<MovieCategory> MovieCategories { get; set; }
         public DbSet<WatchHistory> WatchHistories { get; set; }
-        public DbSet<ExternalDescription> ExternalDescriptions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -115,13 +114,6 @@ namespace Smart_Utube.Data
                 .HasOne(w => w.Movie)
                 .WithMany(m => m.WatchHistories)
                 .HasForeignKey(w => w.MovieId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // AI description
-            modelBuilder.Entity<ExternalDescription>()
-                .HasOne(ed => ed.Movie)
-                .WithMany(m => m.ExternalDescriptions)
-                .HasForeignKey(ed => ed.MovieId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
