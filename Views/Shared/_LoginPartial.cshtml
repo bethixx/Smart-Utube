@@ -14,7 +14,12 @@
         <li class="nav-item">
             <a id="manage" class="nav-link user-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">
                 <span class="user-avatar">
-                    @(currentUser?.Nickname?.Substring(0, 1).ToUpper() ?? currentUser?.Email?.Substring(0, 1).ToUpper())
+                    @if (!string.IsNullOrEmpty(currentUser?.AvatarPath))
+                    {
+                        <img src="@currentUser.AvatarPath"
+                             class="rounded-circle"
+                             style="width:30px;height:30px;" />
+                    }
                 </span>
                 <span class="user-name">@(currentUser?.Nickname ?? currentUser?.Email)</span>
             </a>

@@ -4,13 +4,18 @@ using Smart_Utube.Repositories;
 using Smart_Utube.Services;
 using Microsoft.AspNetCore.Identity;
 using Smart_Utube.Models;
+using QuestPDF.Infrastructure;
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddDefaultIdentity<AppUser>(options =>
 {
@@ -31,12 +36,14 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddHttpClient<IQuoteService, QuoteService>();
 builder.Services.AddHttpClient<WeatherService>();
+builder.Services.AddScoped<PdfService>();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
 
     string[] roles = { "Admin", "User" };
 
@@ -46,6 +53,23 @@ using (var scope = app.Services.CreateScope())
         {
             await roleManager.CreateAsync(new IdentityRole(role));
         }
+    }
+
+    var adminEmail = "admin@gmail.com";
+
+    var admin = await userManager.FindByEmailAsync(adminEmail);
+
+    if (admin == null)
+    {
+        admin = new AppUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            Nickname = "Admin"
+        };
+
+        await userManager.CreateAsync(admin, "admin123");
+        await userManager.AddToRoleAsync(admin, "Admin");
     }
 }
 

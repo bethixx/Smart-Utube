@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Hosting;
 using Smart_Utube.Models;
 
 namespace Smart_Utube.Areas.Identity.Pages.Account.Manage
@@ -17,13 +18,15 @@ namespace Smart_Utube.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IWebHostEnvironment _environment;
 
         public IndexModel(
             UserManager<AppUser> userManager,
-            SignInManager<AppUser> signInManager)
+            SignInManager<AppUser> signInManager, IWebHostEnvironment environment)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _environment = environment;
         }
 
         /// <summary>
@@ -61,7 +64,10 @@ namespace Smart_Utube.Areas.Identity.Pages.Account.Manage
             public string PhoneNumber { get; set; }
 
             [Display(Name = "Nickname")]
-            public string? Nickname { get; set; }
+            public string Nickname { get; set; }
+
+            [Display(Name = "Avatar")]
+            public IFormFile Avatar { get; set; }
         }
 
         private async Task LoadAsync(AppUser user)
@@ -102,6 +108,25 @@ namespace Smart_Utube.Areas.Identity.Pages.Account.Manage
             {
                 await LoadAsync(user);
                 return Page();
+            }
+
+            if (Input.Avatar != null)
+            {
+                var uploadsFolder = Path.Combine(_environment.WebRootPath, "avatars");
+
+                if (!Directory.Exists(uploadsFolder))
+                    Directory.CreateDirectory(uploadsFolder);
+
+                var fileName = Guid.NewGuid() + Path.GetExtension(Input.Avatar.FileName);
+
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await Input.Avatar.CopyToAsync(stream);
+
+                user.AvatarPath = "/avatars/" + fileName;
+
+                await _userManager.UpdateAsync(user);
             }
 
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);

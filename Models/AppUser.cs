@@ -6,5 +6,6 @@ namespace Smart_Utube.Models
     {
         public string? Nickname { get; set; }
         public string? Bio { get; set; }
+        public string? AvatarPath { get; set; }
     }
 }

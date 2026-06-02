@@ -15,11 +15,13 @@ namespace Smart_Utube.Controllers
     {
         private readonly IMovieService _movieService;
         private readonly AppDbContext _context;
+        private readonly PdfService _pdfService;
 
-        public MoviesController(IMovieService movieService, AppDbContext context)
+        public MoviesController(IMovieService movieService, AppDbContext context, PdfService pdfService)
         {
             _movieService = movieService;
             _context = context;
+            _pdfService = pdfService;
         }
 
         // GET: Movies
@@ -34,6 +36,9 @@ namespace Smart_Utube.Controllers
                 ViewBag.Playlists = await _context.Playlists
                     .Where(p => p.UserId == userId)
                     .ToListAsync();
+
+                ViewBag.HasFavorites = await _context.Favorites
+                    .AnyAsync(f => f.UserId == userId);
             }
 
             return View(movies);
@@ -175,6 +180,34 @@ namespace Smart_Utube.Controllers
             await _context.SaveChangesAsync();
 
             return Redirect(movie.YouTubeUrl);
+        }
+
+        [Authorize]
+        public async Task<IActionResult> ExportPdf()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var favoriteMovies = await _context.Favorites
+                .Where(f => f.UserId == userId)
+                .Include(f => f.Movie)
+                .Select(f => new MovieReadDto
+                {
+                    Id = f.Movie.Id,
+                    Title = f.Movie.Title,
+                    YouTubeUrl = f.Movie.YouTubeUrl,
+                    Duration = f.Movie.Duration,
+                    Description = f.Movie.Description
+                })
+                .ToListAsync();
+
+            if (!favoriteMovies.Any())
+            {
+                return RedirectToAction("Index");
+            }
+
+            var pdf = _pdfService.GenerateMoviesPdf(favoriteMovies);
+
+            return File(pdf, "application/pdf", "my-favorite-movies.pdf");
         }
     }
 }
