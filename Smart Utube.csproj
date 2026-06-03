@@ -33,4 +33,10 @@
     <Folder Include="wwwroot\avatars\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="smartutube.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
