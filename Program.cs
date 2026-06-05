@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Smart_Utube.Models;
 using QuestPDF.Infrastructure;
 
-QuestPDF.Settings.License = LicenseType.Community;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -39,6 +37,8 @@ builder.Services.AddHttpClient<WeatherService>();
 builder.Services.AddScoped<PdfService>();
 
 var app = builder.Build();
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 using (var scope = app.Services.CreateScope())
 {

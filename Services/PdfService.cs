@@ -21,6 +21,7 @@ public class PdfService
                     }
                 });
             });
-        }).GeneratePdf();
+        })
+        .GeneratePdf();
     }
 }
